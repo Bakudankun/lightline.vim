@@ -20,9 +20,8 @@ function! lightline#update() abort
     return
   endif
   let w = winnr()
-  let s = winnr('$') == 1 ? [lightline#statusline(0)] : [lightline#statusline(0), lightline#statusline(1)]
   for n in range(1, winnr('$'))
-    call setwinvar(n, '&statusline', s[n!=w])
+    call setwinvar(n, '&statusline', '%!lightline#statusline(' . n . ')')
     call setwinvar(n, 'lightline', n!=w)
   endfor
 endfunction
@@ -308,11 +307,12 @@ function! lightline#concatenate(xs, right) abort
   return join(filter(copy(a:xs), 'v:val !=# ""'), ' ' . separator . ' ')
 endfunction
 
-function! lightline#statusline(inactive) abort
-  if a:inactive && !has_key(s:highlight, 'inactive')
+function! lightline#statusline(winnr) abort
+  let inactive = a:winnr != winnr()
+  if inactive && !has_key(s:highlight, 'inactive')
     call lightline#highlight('inactive')
   endif
-  return s:line(0, a:inactive)
+  return s:line(0, inactive)
 endfunction
 
 function! s:normalize(result) abort
